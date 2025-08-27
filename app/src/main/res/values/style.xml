@@ -1,0 +1,13 @@
+<resources>
+
+    <!-- Toolbar title bold -->
+    <style name="ToolbarTitleBold" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- App Theme -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+
+    </style>
+
+</resources>
