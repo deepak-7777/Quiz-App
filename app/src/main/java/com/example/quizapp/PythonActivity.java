@@ -1,32 +1,41 @@
 package com.example.quizapp;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.GradientDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Gravity;
-import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.GridLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
 public class PythonActivity extends AppCompatActivity {
 
     TextView backPython;
-    LinearLayout pythonBasic, pythonDataType, pythonOperators, pythonInput, pythonStatements, pythonLoops, pythonFunction, pythonDataStructures,
-            pythonStringHandling, pythonModules, pythonFileHandling, pythonExceptionHandling, pythonOOPs, pythonIterators, pythonDecorators;
+    LinearLayout pythonBasic, pythonDataType, pythonOperators, pythonInput, pythonStatements,
+            pythonLoops, pythonFunction, pythonDataStructures, pythonStringHandling,
+            pythonModules, pythonFileHandling, pythonExceptionHandling, pythonOOPs,
+            pythonIterators, pythonDecorators;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_python );
+        setContentView(R.layout.activity_python);
 
-        backPython  = findViewById(R.id.backPython);
-        pythonBasic= findViewById(R.id.pythonBasic);
+        backPython = findViewById(R.id.backPython);
+        pythonBasic = findViewById(R.id.pythonBasic);
         pythonDataType = findViewById(R.id.pythonDataType);
         pythonOperators = findViewById(R.id.pythonOperators);
         pythonInput = findViewById(R.id.pythonInput);
@@ -42,114 +51,127 @@ public class PythonActivity extends AppCompatActivity {
         pythonIterators = findViewById(R.id.pythonIterators);
         pythonDecorators = findViewById(R.id.pythonDecorators);
 
-        backPython .setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        }) ;
+        backPython.setOnClickListener(v -> finish());
 
-        pythonBasic.setOnClickListener(v -> {
-            showQuestionLimitDialog(pythonBasic, "Basics of Python");
-        });
-
-        pythonDataType.setOnClickListener(v -> {
-            showQuestionLimitDialog(pythonDataType, "Variables & Data Types");
-        });
-
-        pythonOperators.setOnClickListener(v -> {
-            showQuestionLimitDialog(pythonOperators, "Operators");
-        });
-
-        pythonInput.setOnClickListener(v -> {
-            showQuestionLimitDialog(pythonInput, "Input & Output");
-        });
-
-        pythonStatements.setOnClickListener(v -> {
-            showQuestionLimitDialog(pythonStatements, "Control Statements");
-        });
-
-        pythonLoops.setOnClickListener(v -> {
-            showQuestionLimitDialog(pythonLoops, "Loops");
-        });
-
-        pythonFunction.setOnClickListener(v -> {
-            showQuestionLimitDialog(pythonFunction, "Functions");
-        });
-
-        pythonDataStructures.setOnClickListener(v -> {
-            showQuestionLimitDialog(pythonDataStructures, "Data Structures");
-        });
-
-        pythonStringHandling.setOnClickListener(v -> {
-            showQuestionLimitDialog(pythonStringHandling, "String Handling");
-        });
-
-        pythonModules.setOnClickListener(v -> {
-            showQuestionLimitDialog(pythonModules, "Modules & Packages");
-        });
-
-        pythonFileHandling.setOnClickListener(v -> {
-            showQuestionLimitDialog(pythonFileHandling, "File Handling");
-        });
-
-        pythonExceptionHandling.setOnClickListener(v -> {
-            showQuestionLimitDialog(pythonExceptionHandling, "Exception Handling");
-        });
-
-        pythonOOPs.setOnClickListener(v -> {
-            showQuestionLimitDialog(pythonOOPs, "Object-Oriented Programming");
-        });
-
-        pythonIterators.setOnClickListener(v -> {
-            showQuestionLimitDialog(pythonIterators, "Iterators & Generators");
-        });
-
-        pythonDecorators.setOnClickListener(v -> {
-            showQuestionLimitDialog(pythonDecorators, "Decorators");
-        });
-
+        // ✅ Har topic pe dialog call
+        pythonBasic.setOnClickListener(v -> showQuestionDialog("Basics of Python"));
+        pythonDataType.setOnClickListener(v -> showQuestionDialog("Variables & Data Types"));
+        pythonOperators.setOnClickListener(v -> showQuestionDialog("Operators"));
+        pythonInput.setOnClickListener(v -> showQuestionDialog("Input & Output"));
+        pythonStatements.setOnClickListener(v -> showQuestionDialog("Control Statements"));
+        pythonLoops.setOnClickListener(v -> showQuestionDialog("Loops"));
+        pythonFunction.setOnClickListener(v -> showQuestionDialog("Functions"));
+        pythonDataStructures.setOnClickListener(v -> showQuestionDialog("Data Structures"));
+        pythonStringHandling.setOnClickListener(v -> showQuestionDialog("String Handling"));
+        pythonModules.setOnClickListener(v -> showQuestionDialog("Modules & Packages"));
+        pythonFileHandling.setOnClickListener(v -> showQuestionDialog("File Handling"));
+        pythonExceptionHandling.setOnClickListener(v -> showQuestionDialog("Exception Handling"));
+        pythonOOPs.setOnClickListener(v -> showQuestionDialog("Object-Oriented Programming"));
+        pythonIterators.setOnClickListener(v -> showQuestionDialog("Iterators & Generators"));
+        pythonDecorators.setOnClickListener(v -> showQuestionDialog("Decorators"));
     }
 
-    private void showQuestionLimitDialog(LinearLayout topicLayout, String topicName) {
+    // ✅ Same dialog as CActivity
+    private void showQuestionDialog(String topicName) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Select Number of Questions");
+        builder.setCancelable(true);
 
-        // Custom layout for dialog
-        LinearLayout layout = new LinearLayout(this);
-        layout.setOrientation(LinearLayout.HORIZONTAL);
-        layout.setPadding(50, 30, 50, 30);
-        layout.setGravity(Gravity.CENTER);
+        // Parent layout
+        LinearLayout parentLayout = new LinearLayout(this);
+        parentLayout.setOrientation(LinearLayout.VERTICAL);
+        float density = getResources().getDisplayMetrics().density;
+        int padHor = (int) (24 * density);
+        int padVer = (int) (20 * density);
+        parentLayout.setPadding(padHor, padVer, padHor, padVer);
+        parentLayout.setGravity(Gravity.CENTER);
 
-        // Circle buttons
-        int[] options = {5, 10, 15};
-        for (int opt : options) {
-            TextView tv = new TextView(this);
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(120, 120);
-            params.setMargins(20, 0, 20, 0);
-            tv.setLayoutParams(params);
-            tv.setGravity(Gravity.CENTER);
-            tv.setText(String.valueOf(opt));
-            tv.setTextColor(Color.WHITE);
-            tv.setTextSize(18f);
-            tv.setBackground(ContextCompat.getDrawable(this, R.drawable.circle_option_bg));
-            tv.setClickable(true);
-            tv.setFocusable(true);
+        // Background for dialog
+        GradientDrawable bgDialog = new GradientDrawable();
+        bgDialog.setColor(Color.parseColor("#2C2C2C")); // dark gray
+        bgDialog.setCornerRadius(40f);
+        parentLayout.setBackground(bgDialog);
 
-            int finalOpt = opt;
-            tv.setOnClickListener(v -> {
-                // Launch QuizActivity with selected limit
-                Intent intent = new Intent(PythonActivity.this, QuizActivity.class);
-                intent.putExtra("language", "Python");
-                intent.putExtra("topic", topicName);
-                intent.putExtra("limit", finalOpt);  // user selected limit
-                startActivity(intent);
-                finish();
+        // Title
+        TextView title = new TextView(this);
+        title.setText("Select Number of Questions");
+        title.setTextSize(18);
+        title.setTypeface(null, Typeface.BOLD);
+        title.setTextColor(Color.WHITE);
+        title.setGravity(Gravity.CENTER);
+        LinearLayout.LayoutParams titleParams =
+                new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT);
+        titleParams.bottomMargin = (int) (12 * density);
+        title.setLayoutParams(titleParams);
+        parentLayout.addView(title);
+
+        // GridLayout
+        GridLayout gridLayout = new GridLayout(this);
+        gridLayout.setColumnCount(3);
+        gridLayout.setAlignmentMode(GridLayout.ALIGN_MARGINS);
+        gridLayout.setUseDefaultMargins(true);
+
+        LinearLayout.LayoutParams gridParams =
+                new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                );
+        gridParams.gravity = Gravity.CENTER;
+        gridLayout.setLayoutParams(gridParams);
+
+        int[] values = {5, 10, 15, 20, 25, 30};
+
+        builder.setView(parentLayout);
+        final AlertDialog dialog = builder.create();
+
+        for (int value : values) {
+            Button btn = new Button(this);
+
+            int size = (int) (55 * density); // circle size
+            GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+            params.width = size;
+            params.height = size;
+            int margin = (int) (8 * density);
+            params.setMargins(margin, margin, margin, margin);
+            btn.setLayoutParams(params);
+
+            GradientDrawable bg = new GradientDrawable();
+            bg.setShape(GradientDrawable.OVAL);
+            bg.setColor(Color.parseColor("#9C27B0"));
+            bg.setStroke((int) (2 * density), Color.WHITE);
+            btn.setBackground(bg);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                btn.setBackgroundTintList(null);
+            }
+
+            btn.setText(String.valueOf(value));
+            btn.setTextColor(Color.WHITE);
+            btn.setTextSize(14);
+            btn.setGravity(Gravity.CENTER);
+
+            btn.setOnClickListener(v -> {
+                Intent i = new Intent(PythonActivity.this, QuizActivity.class);
+                i.putExtra("language", "Python");
+                i.putExtra("topic", topicName);
+                i.putExtra("numQuestions", value);
+                startActivity(i);
+                dialog.dismiss();
             });
-            layout.addView(tv);
+
+            gridLayout.addView(btn);
         }
-        builder.setView(layout);
-        AlertDialog dialog = builder.create();
+
+        parentLayout.addView(gridLayout);
+
+        dialog.setOnShowListener(d -> {
+            Window window = dialog.getWindow();
+            if (window != null) {
+                window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                int width = (int) (getResources().getDisplayMetrics().widthPixels * 0.85);
+                window.setLayout(width, WindowManager.LayoutParams.WRAP_CONTENT);
+            }
+        });
+
         dialog.show();
     }
 }

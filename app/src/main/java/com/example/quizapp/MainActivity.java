@@ -172,4 +172,21 @@ public class MainActivity extends AppCompatActivity {
                         Configuration.UI_MODE_NIGHT_MASK;
         return nightModeFlags == Configuration.UI_MODE_NIGHT_YES;
     }
+
+    ///    Dialer box
+    @Override
+    public void onBackPressed() {
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Exit App")
+                .setMessage("Are you sure you want to exit?")
+                .setCancelable(false)
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    finishAffinity(); //
+                })
+                .setNegativeButton("No", (dialog, which) -> {
+                    dialog.dismiss(); //
+                })
+                .show();
+    }
+
 }

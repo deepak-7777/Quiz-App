@@ -1,6 +1,7 @@
 package com.example.quizapp;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Build;
@@ -26,6 +27,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -45,8 +47,7 @@ public class QuizActivity extends AppCompatActivity {
 
     private DatabaseReference ref;
     private String language, topic;
-
-    private int questionLimit;   // for open dialog
+    private int numQuestions = 0;  //  user selected limit
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +71,7 @@ public class QuizActivity extends AppCompatActivity {
 
         language = getIntent().getStringExtra("language");
         topic = getIntent().getStringExtra("topic");
-        questionLimit = getIntent().getIntExtra("limit", 10); // default 10
+        numQuestions = getIntent().getIntExtra("numQuestions", 0); // read limit
 
         if (language == null || topic == null) {
             Toast.makeText(this, "Invalid quiz data!", Toast.LENGTH_SHORT).show();
@@ -78,7 +79,7 @@ public class QuizActivity extends AppCompatActivity {
             return;
         }
 
-        // Initially show loading layout and hide quiz content
+        // Hide quiz until questions load
         loadingLayout.setVisibility(View.VISIBLE);
         tvQuestion.setVisibility(View.GONE);
         radioGroup.setVisibility(View.GONE);
@@ -88,8 +89,7 @@ public class QuizActivity extends AppCompatActivity {
         tvCTitle.setVisibility(View.GONE);
         btnFinalSubmit.setVisibility(View.GONE);
 
-
-        ///     status bar fit in toolbar  and status bar color related
+        // status bar styling
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Window window = getWindow();
             window.getDecorView().setSystemUiVisibility(
@@ -99,12 +99,9 @@ public class QuizActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             View decorView = getWindow().getDecorView();
             int flags = decorView.getSystemUiVisibility();
-
             if (isDarkModeOn()) {
-                // Dark Mode → white icons
                 decorView.setSystemUiVisibility(flags & ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
             } else {
-                // Light Mode → black icons
                 decorView.setSystemUiVisibility(flags | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
             }
         }
@@ -113,7 +110,6 @@ public class QuizActivity extends AppCompatActivity {
                 .child(language)
                 .child(topic);
 
-
         loadTopicTitle();
         loadQuestions();
 
@@ -121,29 +117,9 @@ public class QuizActivity extends AppCompatActivity {
         btnBack.setOnClickListener(v -> prevQuestion());
 
         btnFinalSubmit.setOnClickListener(v -> {
-            int selectedId = radioGroup.getCheckedRadioButtonId();
-            int answerIndex = -1;
-
-            if (selectedId == R.id.option1) answerIndex = 1;
-            else if (selectedId == R.id.option2) answerIndex = 2;
-            else if (selectedId == R.id.option3) answerIndex = 3;
-            else if (selectedId == R.id.option4) answerIndex = 4;
-
-            if (answerIndex != -1) {
-                userAnswers.put(currentIndex, answerIndex);
-            }
-
-            // Open ResultActivity
-            Intent i = new Intent(this, ResultActivity.class);
-            i.putExtra("questionList", new ArrayList<>(questionList));
-            i.putExtra("userAnswers", userAnswers);
-            i.putExtra("language", language);
-            i.putExtra("topic", topic);
-            i.putExtra("limit", questionLimit);
-            startActivity(i);
-            finish();
+            saveAnswer();
+            openResultActivity();
         });
-
     }
 
     private void loadTopicTitle() {
@@ -151,49 +127,41 @@ public class QuizActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
-                    String topicTitle = snapshot.getValue(String.class);
-                    tvCTitle.setText(topicTitle);
+                    tvCTitle.setText(snapshot.getValue(String.class));
                 } else {
-                    tvCTitle.setText(topic); // fallback: intent value
+                    tvCTitle.setText(topic);
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                tvCTitle.setText(topic); // fallback
+                tvCTitle.setText(topic);
             }
         });
     }
 
     private void loadQuestions() {
-        // हम "title" को छोड़कर बाकी सबको questions मानेंगे
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 questionList.clear();
                 for (DataSnapshot qSnap : snapshot.getChildren()) {
-                    if (!qSnap.getKey().equals("title")) {   //  skip title
+                    if (!qSnap.getKey().equals("title")) {
                         Question q = qSnap.getValue(Question.class);
                         if (q != null) questionList.add(q);
                     }
                 }
 
-                // for dialog box
                 if (!questionList.isEmpty()) {
-                    //  Apply limit
-                    if (questionList.size() > questionLimit) {
-                        questionList = questionList.subList(0, questionLimit);
+                    // ✅ Randomize and limit questions
+                    Collections.shuffle(questionList);
+                    if (numQuestions > 0 && numQuestions < questionList.size()) {
+                        questionList = new ArrayList<>(questionList.subList(0, numQuestions));
                     }
 
                     currentIndex = 0;
                     showQuestion(currentIndex);
-                }                                           // yaha tak
 
-                if (!questionList.isEmpty()) {
-                    currentIndex = 0;
-                    showQuestion(currentIndex);
-
-                    // Show quiz content & hide loading layout
                     loadingLayout.setVisibility(View.GONE);
                     tvQuestion.setVisibility(View.VISIBLE);
                     radioGroup.setVisibility(View.VISIBLE);
@@ -204,10 +172,9 @@ public class QuizActivity extends AppCompatActivity {
 
                 } else {
                     loadingLayout.setVisibility(View.GONE);
-                    Toast.makeText(QuizActivity.this, "No questions found for this topic!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(QuizActivity.this, "No questions found!", Toast.LENGTH_SHORT).show();
                 }
             }
-
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
@@ -229,7 +196,6 @@ public class QuizActivity extends AppCompatActivity {
         option4.setText(q.getOption4());
 
         tvCounter.setText((index + 1) + " / " + questionList.size());
-
         radioGroup.clearCheck();
 
         if (userAnswers.containsKey(index)) {
@@ -240,22 +206,36 @@ public class QuizActivity extends AppCompatActivity {
             else if (savedAnswer == 4) option4.setChecked(true);
         }
 
-        //  Last Question Logic
         if (index == questionList.size() - 1) {
             btnSubmit.setEnabled(false);
-            btnSubmit.setBackgroundTintList(getResources().getColorStateList(android.R.color.white)); // white
-            btnSubmit.setTextColor(getResources().getColor(android.R.color.black)); // text black
+            btnSubmit.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY)); // 🔹 Disabled pe grey
             btnFinalSubmit.setVisibility(View.VISIBLE);
         } else {
             btnSubmit.setEnabled(true);
-            btnSubmit.setBackgroundTintList(getResources().getColorStateList(android.R.color.holo_green_light));
-            btnSubmit.setTextColor(getResources().getColor(android.R.color.black));
+            btnSubmit.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#7CFC00"))); // 🔹 Enabled pe green
             btnFinalSubmit.setVisibility(View.GONE);
         }
     }
 
 
     private void submitAndNext() {
+        saveAnswer();
+        if (currentIndex < questionList.size() - 1) {
+            currentIndex++;
+            showQuestion(currentIndex);
+        } else {
+            openResultActivity();
+        }
+    }
+
+    private void prevQuestion() {
+        if (currentIndex > 0) {
+            currentIndex--;
+            showQuestion(currentIndex);
+        }
+    }
+
+    private void saveAnswer() {
         int selectedId = radioGroup.getCheckedRadioButtonId();
         int answerIndex = -1;
 
@@ -267,30 +247,20 @@ public class QuizActivity extends AppCompatActivity {
         if (answerIndex != -1) {
             userAnswers.put(currentIndex, answerIndex);
         }
-
-        if (currentIndex < questionList.size() - 1) {
-            currentIndex++;
-            showQuestion(currentIndex);
-        } else {
-            // Open ResultActivity
-            Intent i = new Intent(this, ResultActivity.class);
-            i.putExtra("questionList", new ArrayList<>(questionList));
-            i.putExtra("userAnswers", userAnswers);
-            i.putExtra("language", language);
-            i.putExtra("topic", topic);
-            startActivity(i);
-            finish();
-        }
     }
 
-    private void prevQuestion() {
-        if (currentIndex > 0) {
-            currentIndex--;
-            showQuestion(currentIndex);
-        }
+    private void openResultActivity() {
+        Intent i = new Intent(this, ResultActivity.class);
+        i.putExtra("questionList", new ArrayList<>(questionList));
+        i.putExtra("userAnswers", userAnswers);
+        i.putExtra("language", language);
+        i.putExtra("topic", topic);
+        i.putExtra("numQuestions", numQuestions); //  Pass limit forward
+        startActivity(i);
+        finish();
     }
 
-     ///     status bar fit in toolbar  and status bar color related
+
     private boolean isDarkModeOn() {
         int nightModeFlags =
                 getResources().getConfiguration().uiMode &
@@ -301,7 +271,6 @@ public class QuizActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if (!questionList.isEmpty()) {
-            // Quiz chal raha hai
             new androidx.appcompat.app.AlertDialog.Builder(this)
                     .setTitle("Exit Quiz?")
                     .setMessage("Are you sure you want to exit? Your progress will be lost.")
@@ -310,9 +279,7 @@ public class QuizActivity extends AppCompatActivity {
                     .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
                     .show();
         } else {
-            // Agar abhi questions load nahi hue to normal back kaam kare
             super.onBackPressed();
         }
     }
-
 }

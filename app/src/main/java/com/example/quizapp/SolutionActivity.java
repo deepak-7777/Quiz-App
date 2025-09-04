@@ -20,26 +20,23 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class SolutionActivity extends AppCompatActivity {
-
     private RecyclerView rvSolution;
     private ArrayList<Question> questionList;
     private HashMap<Integer, Integer> userAnswers;
-    LinearLayout homeContainer;
-
+    TextView backSolution;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_solution);
 
+        backSolution = findViewById(R.id.backSolution);
         rvSolution = findViewById(R.id.rvSolution);
-        homeContainer = findViewById(R.id.homeContainer);
         rvSolution.setLayoutManager(new LinearLayoutManager(this));
 
-        homeContainer.setOnClickListener(new View.OnClickListener() {
+        backSolution.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(SolutionActivity.this , MainActivity.class));
                 finish();
             }
         });

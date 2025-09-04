@@ -12,7 +12,7 @@
 <!--        &lt;!&ndash; Status bar icons/text ko light rakho &ndash;&gt;-->
 <!--        <item name="android:windowLightStatusBar">true</item>-->
 <!--    </style>-->
-    <color name="settings_bg">#FFFFFF</color>
+
     <style name="Theme.QuizApp" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Status bar background light -->
         <item name="android:statusBarColor">@color/white</item>

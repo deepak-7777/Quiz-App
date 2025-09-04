@@ -4,7 +4,6 @@
 <!--        &lt;!&ndash; Customize your dark theme here. &ndash;&gt;-->
 <!--        &lt;!&ndash; <item name="colorPrimary">@color/my_dark_primary</item> &ndash;&gt;-->
 <!--    </style>-->
-    <color name="settings_bg">#2F2E2E</color> <!-- Dark mode ke liye -->
 
     <style name="Base.Theme.QuizApp" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Status bar background dark -->

@@ -55,7 +55,7 @@ public class ResultActivity extends AppCompatActivity {
         userAnswers = (HashMap<Integer, Integer>) getIntent().getSerializableExtra("userAnswers");
 
         if (questionList == null || userAnswers == null) {
-            finish();
+
             return;
         }
 
@@ -65,7 +65,7 @@ public class ResultActivity extends AppCompatActivity {
             Intent i = new Intent(ResultActivity.this, QuizActivity.class);
             i.putExtra("language", getIntent().getStringExtra("language"));
             i.putExtra("topic", getIntent().getStringExtra("topic"));
-            i.putExtra("limit", getIntent().getIntExtra("limit", 10)); // yahan limit pass karo
+            i.putExtra("numQuestions", getIntent().getIntExtra("numQuestions", 0)); //  Add this line
             startActivity(i);
             finish();
         });
@@ -76,7 +76,7 @@ public class ResultActivity extends AppCompatActivity {
             i.putExtra("questionList", questionList);
             i.putExtra("userAnswers", userAnswers);
             startActivity(i);
-            finish();
+
         });
 
         ///     status bar fit in toolbar  and status bar color related

@@ -1,17 +1,24 @@
 package com.example.quizapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+
+import java.util.ArrayList;
 
 public class SettingActivity extends AppCompatActivity {
+
     TextView backSetting;
-    LinearLayout aboutQuiz, privacySetting;
+    TextView aboutApp, privacySetting;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -19,29 +26,28 @@ public class SettingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_setting);
 
         backSetting= findViewById(R.id.backSetting);
-        aboutQuiz = findViewById(R.id.aboutQuiz);
-        privacySetting = findViewById(R.id.privacySettings);
+        privacySetting = findViewById(R.id.privacySetting);
+        aboutApp = findViewById(R.id.aboutApp);
 
         backSetting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();
             }
-        });
+        }) ;
 
-        aboutQuiz.setOnClickListener(new View.OnClickListener() {
+        aboutApp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(SettingActivity.this, "Clicked!", Toast.LENGTH_SHORT).show();
+              startActivity(new Intent(SettingActivity.this, AboutappActivity.class));
             }
-        });
+        }) ;
 
         privacySetting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(SettingActivity.this, "Clicked!", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(SettingActivity.this, PrivacyappActivity.class));
             }
-        });
-
+        }) ;
     }
 }
