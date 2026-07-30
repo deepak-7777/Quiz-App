@@ -16,7 +16,7 @@ This Quiz App is a simple and interactive application designed for users to test
 * Users can select answers instantly during the quiz.
 * The app ensures a smooth and responsive quiz experience.
 
-### 📊 Score Evaluation
+### 📊 Score Evaluation 
 
 * At the end of each quiz, users can view their final score.
 * This helps them track their performance and learning progress.
